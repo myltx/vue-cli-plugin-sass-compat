@@ -1,19 +1,27 @@
 # vue-cli-plugin-sass-compat
 
-用于 Vue CLI（webpack4/5）项目从 `node-sass(libsass)` 迁移到 `sass(dart-sass)` 时的兼容插件：
+[![npm](https://img.shields.io/badge/npm-not%20published-lightgrey?style=flat-square&logo=npm&logoColor=white)](https://www.npmjs.com/package/vue-cli-plugin-sass-compat)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](./LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-myltx%2Fvue--cli--plugin--sass--compat-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/myltx/vue-cli-plugin-sass-compat)
+
+用于 Vue CLI（webpack4/5）项目从 `node-sass(libsass)` 迁移到 `sass(dart-sass)` 时的“老写法兼容”插件（自动生效，无需改代码）：
 
 - 将旧写法 `/deep/`、`>>>` 转成 `::v-deep`
 - 修复 `calc(100%-16px)` 这类运算符空格问题（dart-sass 更严格）
 
-## 安装（发布到 npm 后）
+## 适用范围
 
-在目标项目执行：
+- Vue CLI 3/4/5（webpack4/5）
+- 处理你项目内的 `.scss/.sass` 文件（默认跳过 `node_modules`）
+- `calc()` 修复目前只处理 `+` / `-` 的二元运算空格
+
+## 安装
+
+在目标项目执行（推荐）：
 
 ```bash
 npm i -D vue-cli-plugin-sass-compat
 ```
-
-并确保已完成 `node-sass` -> `sass(dart-sass)` 迁移（见下方“迁移步骤”）。
 
 ## 安装（本地 file: 方式）
 
@@ -21,7 +29,9 @@ npm i -D vue-cli-plugin-sass-compat
 npm i -D file:/absolute/path/to/tools/vue-cli-plugin-sass-compat
 ```
 
-## 可选配置
+> 使用前请先完成 `node-sass` -> `sass(dart-sass)` 迁移（见下方“迁移步骤”）。
+
+## 配置（可选）
 
 在目标项目 `vue.config.js` 中：
 
@@ -38,8 +48,40 @@ module.exports = {
 
 字段说明（默认都为 `true`）：
 
-- `fixDeep`：是否将 `/deep/`、`>>>` 等旧写法转换为 `::v-deep`；设为 `false` 可禁用该转换。
-- `fixCalc`：是否修复 `calc(100%-16px)` 等运算符两侧缺少空格的写法；设为 `false` 可禁用该修复。
+- `fixDeep`：是否将 `/deep/`、`>>>` 等旧写法转换为 `::v-deep`；设为 `false` 可禁用该转换
+- `fixCalc`：是否修复 `calc(100%-16px)` 等运算符两侧缺少空格的写法；设为 `false` 可禁用该修复
+
+## 示例
+
+### 1) 深度选择器
+
+```scss
+.a /deep/ .b {}
+.a >>> .b {}
+```
+
+会被转换为类似：
+
+```scss
+.a ::v-deep .b {}
+.a ::v-deep .b {}
+```
+
+### 2) calc 运算符空格
+
+```scss
+.a { width: calc(100%-16px); }
+```
+
+会被转换为：
+
+```scss
+.a { width: calc(100% - 16px); }
+```
+
+## 工作原理（简述）
+
+作为 Vue CLI Service 插件，通过 `chainWebpack` 在 `sass-loader` 后插入一个轻量 loader，对源码做字符串级别的兼容性替换。
 
 ## node-sass 迁移到 sass(dart-sass) 步骤（必做）
 
@@ -145,3 +187,7 @@ npm publish --access public
 ```
 
 > 插件本身不依赖 Python/node-gyp；如果安装时出现 Python 相关报错，通常来自项目里的原生依赖（如 `deasync`）。
+
+## License
+
+[Apache-2.0](./LICENSE)

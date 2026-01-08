@@ -11,11 +11,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://file.alarmtech.com.cn/wms/wms-web"
+    "url": "git+https://github.com/myltx/vue-cli-plugin-sass-compat.git"
   },
   "bugs": {
-    "url": "http://file.alarmtech.com.cn/wms-web/issues"
+    "url": "https://github.com/myltx/vue-cli-plugin-sass-compat/issues"
   },
+  "homepage": "https://github.com/myltx/vue-cli-plugin-sass-compat#readme",
   "keywords": [
     "vue-cli",
     "plugin",
