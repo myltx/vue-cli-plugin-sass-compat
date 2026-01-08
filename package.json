@@ -1,0 +1,27 @@
+{
+  "name": "vue-cli-plugin-sass-compat",
+  "version": "0.1.1",
+  "description": "Vue CLI plugin: dart-sass migration compat (/deep/ >>> -> ::v-deep, calc operator spacing)",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "sass-compat-loader.js",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://file.alarmtech.com.cn/wms/wms-web"
+  },
+  "bugs": {
+    "url": "http://file.alarmtech.com.cn/wms-web/issues"
+  },
+  "keywords": [
+    "vue-cli",
+    "plugin",
+    "sass",
+    "dart-sass",
+    "scss"
+  ],
+  "license": "Apache-2.0"
+}
