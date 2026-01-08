@@ -9,6 +9,20 @@
 - 将旧写法 `/deep/`、`>>>` 转成 `::v-deep`
 - 修复 `calc(100%-16px)` 这类运算符空格问题（dart-sass 更严格）
 
+## 目录
+
+- [为什么会写这个插件](#为什么会写这个插件)
+- [适用范围](#适用范围)
+- [安装](#安装)
+- [迁移检查（可选）](#迁移检查可选)
+- [配置（可选）](#配置可选)
+- [示例](#示例)
+- [工作原理（简述）](#工作原理简述)
+- [node-sass 迁移到 sass(dart-sass) 步骤（必做）](#node-sass-迁移到-sassdart-sass-步骤必做)
+- [常见问题（速查）](#常见问题速查)
+- [发布到 npm（维护者）](#发布到-npm维护者)
+- [License](#license)
+
 ## 为什么会写这个插件
 
 很多老项目升级 Node / 依赖后，会被迫从 `node-sass(libsass)` 迁移到 `sass(dart-sass)`。但迁移过程中经常会遇到两类“历史遗留写法”：
@@ -39,6 +53,16 @@ npm i -D file:/absolute/path/to/tools/vue-cli-plugin-sass-compat
 ```
 
 > 使用前请先完成 `node-sass` -> `sass(dart-sass)` 迁移（见下方“迁移步骤”）。
+
+## 迁移检查（可选）
+
+安装插件后，在你运行 `npm run serve/dev/build` 时会自动做一次轻量检查：如果检测到项目里仍存在 `node-sass` 或尚未安装 `sass`，会在控制台给出提示（插件不会在 `npm install` 阶段自动改你的依赖）。
+
+也可以手动执行检查命令：
+
+```bash
+vue-cli-service sass-compat:doctor
+```
 
 ## 配置（可选）
 
@@ -128,21 +152,46 @@ npm run dev
 npm run build:prod
 ```
 
-## 常见错误与解决方案
+## 常见问题（速查）
 
-### 1) Node 17+/18/20 构建报 OpenSSL 错误（webpack4）
+| 问题 | 典型报错 | 快速处理 |
+| --- | --- | --- |
+| [OpenSSL/webpack4（Node 17+）构建失败](#openssl-webpack4) | `ERR_OSSL_EVP_UNSUPPORTED` | `NODE_OPTIONS=--openssl-legacy-provider` |
+| [node-gyp / distutils（Python 3.12+）](#python-distutils) | `No module named 'distutils'` | 固定 Python 到 `3.10/3.11` |
+| [node-sass 不兼容（高版本 Node）](#node-sass-incompatible) | `node-sass` 安装/编译失败 | 迁移到 `sass(dart-sass)` |
+| [Apple Silicon chromedriver 安装失败](#apple-silicon-chromedriver) | `Only Mac 64 bits supported.` | 升级/移除或设为 `optionalDependencies` |
+
+## 常见问题（详情）
+
+<a id="openssl-webpack4"></a>
+<details>
+<summary><strong>1) Node 17+/18/20 构建报 OpenSSL 错误（webpack4）</strong></summary>
 
 常见报错：
 
 - `Error: error:0308010C:digital envelope routines::unsupported`
 - `ERR_OSSL_EVP_UNSUPPORTED`
 
+常见环境：
+
+- Node.js 17+（例如 Node.js v18.12.0）
+- Vue CLI 3/4（webpack4）
+
+原因（简述）：
+
+- Node 17+ 使用 OpenSSL 3，webpack4 里某些 hash 算法默认不可用，导致构建时创建 hash 失败
+
 解决：
 
-- 在 `package.json` 的 `vue-cli-service serve/build` 前加：`NODE_OPTIONS=--openssl-legacy-provider`
-- Windows 建议使用：`cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build`
+- 临时兼容（推荐用于老项目快速跑起来）：在 `package.json` 的 `vue-cli-service serve/build` 前加：`NODE_OPTIONS=--openssl-legacy-provider`
+  - Windows 建议使用：`cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve`
+  - 例如：`cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build`
+- 长期方案（更推荐）：升级到 Vue CLI 5 / webpack5，或将 Node 降级到 16.x（与老 webpack4 生态更兼容）
+</details>
 
-### 2) 安装依赖报 node-gyp / distutils（Python 3.12+）
+<a id="python-distutils"></a>
+<details>
+<summary><strong>2) 安装依赖报 node-gyp / distutils（Python 3.12+）</strong></summary>
 
 常见报错：
 
@@ -159,8 +208,11 @@ npm run build:prod
   - `npm config set python "$(mise which python)"`
   - 或一次性：`PYTHON="$(mise which python)" npm i`
 - macOS 可能还需要：`xcode-select --install`
+</details>
 
-### 3) 安装依赖报 node-sass 不兼容（高版本 Node）
+<a id="node-sass-incompatible"></a>
+<details>
+<summary><strong>3) 安装依赖报 node-sass 不兼容（高版本 Node）</strong></summary>
 
 常见现象：
 
@@ -169,8 +221,11 @@ npm run build:prod
 解决：
 
 - 按上方“node-sass 迁移到 sass(dart-sass) 步骤（必做）”完成迁移。
+</details>
 
-### 4) Apple Silicon（M1/M2）chromedriver 安装失败
+<a id="apple-silicon-chromedriver"></a>
+<details>
+<summary><strong>4) Apple Silicon（M1/M2）chromedriver 安装失败</strong></summary>
 
 常见报错：
 
@@ -183,6 +238,7 @@ npm run build:prod
 - 如果业务不依赖 E2E/selenium 测试，可将其移到 `optionalDependencies`，避免阻断正常安装：
   - `"optionalDependencies": { "chromedriver": "..." }`
 - 临时绕过（仅救急）：`CHROMEDRIVER_SKIP_DOWNLOAD=1 npm i` 或 `npm i --ignore-scripts`（相关测试能力可能不可用）
+</details>
 
 ## 发布到 npm（维护者）
 
