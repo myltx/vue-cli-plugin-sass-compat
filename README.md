@@ -178,8 +178,11 @@ npm run build:prod
 
 解决：
 
-- 这是 `chromedriver@79` 等老版本不支持 `darwin arm64` 导致的
-- 建议升级 `chromedriver` 到支持 `darwin arm64` 的版本，并与本机 Chrome 主版本对齐；或将其设为可选依赖避免阻断安装
+- 这通常来自目标项目自身的测试依赖（例如 `chromedriver@79` 等老版本不支持 `darwin arm64`），不是本插件引入的依赖；即使你只是 `npm i -D vue-cli-plugin-sass-compat`，npm 也可能在重建依赖树时触发它的安装脚本而失败
+- 建议升级 `chromedriver` 到支持 `darwin arm64` 的版本，并尽量与本机 Chrome 主版本对齐
+- 如果业务不依赖 E2E/selenium 测试，可将其移到 `optionalDependencies`，避免阻断正常安装：
+  - `"optionalDependencies": { "chromedriver": "..." }`
+- 临时绕过（仅救急）：`CHROMEDRIVER_SKIP_DOWNLOAD=1 npm i` 或 `npm i --ignore-scripts`（相关测试能力可能不可用）
 
 ## 发布到 npm（维护者）
 
