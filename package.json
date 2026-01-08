@@ -1,6 +1,6 @@
 {
   "name": "vue-cli-plugin-sass-compat",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Vue CLI plugin: dart-sass migration compat (/deep/ >>> -> ::v-deep, calc operator spacing)",
   "main": "index.js",
   "files": [
